@@ -21,7 +21,7 @@ function Auth(SpecificComponent, option, adminRoute = null) {
             if (adminRoute && !res.payload.isAdmin) {
               navigate("/");
             } else {
-              if (!option) {
+              if (option === false) {
                 navigate("/");
               }
             }

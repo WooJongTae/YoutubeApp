@@ -134,7 +134,7 @@ app.post("/api/video/thumbnail", (req, res) => {
   // 비디오 전체 정보 추출
   ffmpeg.ffprobe(req.body.url, function (err, metadata) {
     // console.log(req.body.url);
-    console.dir("metadata", metadata);
+
     // console.log(metadata.format.duration);
 
     fileDuration = metadata.format.duration;
@@ -143,12 +143,10 @@ app.post("/api/video/thumbnail", (req, res) => {
   //썸네일 생성, 비디오 길이 추출
   ffmpeg(req.body.url)
     .on("filenames", function (filenames) {
-      console.log("Will generate " + filenames.join(", "));
       thumbsFilePath = "../uploads/thumbnails/" + filenames[0];
       // 오류발생시 여기보소
     })
     .on("end", function () {
-      console.log("Screenshots taken");
       return res.json({
         success: true,
         thumbsFilePath: thumbsFilePath,
@@ -179,6 +177,29 @@ app.post("/api/video/uploadVideo", (req, res) => {
     .catch((err) => {
       console.log("실패", err);
       return res.json({ success: false, err });
+    });
+});
+
+app.get("/api/video/getVideos", (req, res) => {
+  VideoData.find()
+    .populate("writer")
+    .then((videos) => {
+      return res.status(200).json({ success: true, videos });
+    })
+    .catch((err) => {
+      return res.status(400).send(err);
+    });
+});
+
+app.post("/api/video/getVideo", (req, res) => {
+  console.log(req.body);
+  VideoData.findOne({ _id: req.body.videoId })
+    .populate("writer")
+    .then((videoData) => {
+      return res.status(200).json({ success: true, videoData });
+    })
+    .catch((err) => {
+      return res.status(400).json({ success: false });
     });
 });
 app.listen(port, () => {

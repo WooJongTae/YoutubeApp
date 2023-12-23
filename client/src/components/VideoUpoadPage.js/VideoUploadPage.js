@@ -58,7 +58,7 @@ function VideoUploadPage() {
       filePath: FilePath,
       category: Cartegory,
       duration: Duration,
-      thumbnail: FilePath,
+      thumbnail: ThumbnailPath,
     };
 
     axios.post("/api/video/uploadVideo", variables).then((res) => {
