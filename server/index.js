@@ -20,6 +20,7 @@ const port = 5000;
 const mongoose = require("mongoose");
 const { auth } = require("./middleware/auth");
 const VideoData = require("./models/VideoData");
+const Subscriber = require("./models/Subscriber");
 mongoose
   .connect(config.mongoURI)
   .then(() => console.log("몽고DB 접속"))
@@ -202,6 +203,86 @@ app.post("/api/video/getVideo", (req, res) => {
       return res.status(400).json({ success: false });
     });
 });
+
+app.post("/api/subscribe/subscribeNumber", (req, res) => {
+  Subscriber.find({ userTo: req.body.userTo })
+    .then((subscribe) => {
+      return res
+        .status(200)
+        .json({ success: true, subscribeNumber: subscribe.length });
+    })
+    .catch((err) => {
+      return res.status(400).send(err);
+    });
+});
+
+app.post("/api/subcribe/subscribed", (req, res) => {
+  Subscriber.find({ userTo: req.body.userTo, userFrom: req.body.userFrom })
+    .then((subscribe) => {
+      let result = false;
+      if (subscribe.length !== 0) {
+        result = true;
+      }
+      return res.status(200).json({ success: true, subscribed: result });
+    })
+    .catch((err) => {
+      return res.status(400).send(err);
+    });
+});
+
+app.post("/api/subscribe/unSubscribe", (req, res) => {
+  Subscriber.findOneAndDelete({
+    // 여기에 _id랑 로그인한애로 찾아야할듯?
+    userTo: req.body.userTo,
+    userFrom: req.body.userFrom,
+  })
+    .then((doc) => {
+      return res.status(200).json({ success: true, doc });
+    })
+    .catch((err) => {
+      console.log("에러?");
+      return res.status(400).json({ success: false, err });
+    });
+});
+
+app.post("/api/subscribe/subscribe", (req, res) => {
+  const subscribe = new Subscriber(req.body);
+  subscribe
+    .save()
+    .then(() => {
+      return res.status(200).json({ success: true });
+    })
+    .catch((err) => {
+      return res.status(400).json({ success: false, err });
+    });
+});
+
+app.post("/api/getSubscriptionVideos", (req, res) => {
+  Subscriber.find({ userFrom: req.body.userFrom })
+    // 로그인한사람이
+    // userto는 올린놈 from은 로그인해서 구독한놈
+    .then((subscriberInfo) => {
+      console.log("subscriberInfo", subscriberInfo);
+      let subscribeUser = [];
+
+      subscriberInfo.map((subscriber, index) => {
+        subscribeUser.push(subscriber.userTo);
+      });
+
+      VideoData.find({ writer: { $in: subscribeUser } })
+        .then((videos) => {
+          console.log("subscribeUser,", videos);
+          res.status(200).json({ success: true, videos });
+        })
+        .catch((err) => {
+          return res.status(400).send(err);
+        });
+    })
+    .catch((err) => {
+      return res.status(400).send(err);
+    });
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

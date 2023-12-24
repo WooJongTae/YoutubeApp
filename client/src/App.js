@@ -7,6 +7,7 @@ import LoginPage from "./components/LoginPage/LoginPage";
 import Auth from "./hoc/Auth";
 import VideoUploadPage from "./components/VideoUpoadPage.js/VideoUploadPage";
 import VideoDetailPage from "./components/VideoDetailPage/VideoDetailPage";
+import SubscriptionPage from "./components/VideoDetailPage/Subscribe/SubscriptionPage/SubscriptionPage";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/login" element={Auth(LoginPage, false)} />
         <Route path="/video/upload" element={Auth(VideoUploadPage, true)} />
         <Route path="/video/:videoId" element={Auth(VideoDetailPage, null)} />
+        <Route path="/subscription" element={Auth(SubscriptionPage, null)} />
       </Route>
     </Routes>
   );
