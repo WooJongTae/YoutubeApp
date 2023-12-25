@@ -21,6 +21,7 @@ const mongoose = require("mongoose");
 const { auth } = require("./middleware/auth");
 const VideoData = require("./models/VideoData");
 const Subscriber = require("./models/Subscriber");
+const Comment = require("./models/Comment");
 mongoose
   .connect(config.mongoURI)
   .then(() => console.log("몽고DB 접속"))
@@ -205,6 +206,7 @@ app.post("/api/video/getVideo", (req, res) => {
 });
 
 app.post("/api/subscribe/subscribeNumber", (req, res) => {
+  // 간단히 생각해 userto만 보면되지 왜? 구독했으니까
   Subscriber.find({ userTo: req.body.userTo })
     .then((subscribe) => {
       return res
@@ -280,6 +282,37 @@ app.post("/api/getSubscriptionVideos", (req, res) => {
     })
     .catch((err) => {
       return res.status(400).send(err);
+    });
+});
+
+app.post("/api/comment/saveComment", (req, res) => {
+  const comment = new Comment(req.body);
+
+  comment
+    .save()
+    .then((comment) => {
+      Comment.find({ _id: comment._id })
+        .populate("writer")
+        .then((result) => {
+          return res.status(200).json({ success: true, result });
+        })
+        .catch((err) => {
+          return res.status(400).json({ success: false, err });
+        });
+    })
+    .catch((err) => {
+      return res.json({ success: false, err });
+    });
+});
+
+app.post("/api/comment/getComment", (req, res) => {
+  Comment.find({ postId: req.body.videoId })
+    .populate("writer")
+    .then((comments) => {
+      return res.status(200).json({ success: true, comments });
+    })
+    .catch((err) => {
+      return res.status(400).json({ success: false, err });
     });
 });
 

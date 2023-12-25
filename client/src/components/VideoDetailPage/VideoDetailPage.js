@@ -4,8 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import SideVideo from "./SideVideo/SideVideo";
 import Subscribe from "./Subscribe/Subscribe";
-import Comment from "./Comment/Comment";
-
+import Comment from "./Comment/Comment.js";
 function VideoDetailPage() {
   const videoId = useParams();
   const variable = {
@@ -13,6 +12,8 @@ function VideoDetailPage() {
   };
   // 14에서 같은거 구독금지하기
   const [VideoDetail, setVideoDetail] = useState([]);
+  const [Comments, setComments] = useState([]);
+
   useEffect(() => {
     axios
       .post("/api/video/getVideo", variable)
@@ -25,6 +26,18 @@ function VideoDetailPage() {
       })
       .catch((err) => {
         console.log("에러발생");
+      });
+
+    axios
+      .post("/api/comment/getComment", variable)
+      .then((res) => {
+        if (res.data.success) {
+          setComments(res.data.comments);
+          console.log(res.data);
+        }
+      })
+      .catch((err) => {
+        console.log("코멘트 리플 가져오기 실패");
       });
   }, []);
   if (VideoDetail.writer) {
@@ -57,7 +70,7 @@ function VideoDetailPage() {
                   description={VideoDetail.writer.description}
                 />
               </List.Item>
-              <Comment />
+              <Comment CommentLists={Comments} postId={videoId.videoId} />
             </div>
           </Col>
           <Col lg={6} xs={24}>
