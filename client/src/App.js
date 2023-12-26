@@ -17,7 +17,7 @@ function App() {
         <Route path="/register" element={Auth(RegisterPage, false)} />
         <Route path="/login" element={Auth(LoginPage, false)} />
         <Route path="/video/upload" element={Auth(VideoUploadPage, true)} />
-        <Route path="/video/:videoId" element={Auth(VideoDetailPage, null)} />
+        <Route path="/video/:videoId" element={Auth(VideoDetailPage, true)} />
         <Route path="/subscription" element={Auth(SubscriptionPage, null)} />
       </Route>
     </Routes>

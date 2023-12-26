@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { Avatar, Tooltip } from "antd";
 import { Comment } from "@ant-design/compatible";
+import { useSelector } from "react-redux";
 import axios from "axios";
 
-function SingleComement({ postId, comment }) {
+function SingleComement({ postId, comment, refreshFunction }) {
+  console.log(comment.writer);
   const [OpenReply, setOpenReply] = useState(false);
   const [RepleComment, setRepleComment] = useState("");
-
+  const user = useSelector((state) => state.user.data);
+  console.log(user.userData);
   const onClickReplyOpen = () => {
     setOpenReply(!OpenReply);
   };
@@ -18,20 +21,24 @@ function SingleComement({ postId, comment }) {
   const onSubmit = (e) => {
     e.preventDefault();
 
-    // const variable = {
-    //   content: CommentValue,
-    //   writer: user.userData._id,
-    //   postId: postId,
-    // //   responseTo: ,
-    // };
-
-    // axios.post("/api/comment/saveComment", variable).then((res) => {
-    //   if (res.data.success) {
-    //     console.log(res.data.result);
-    //   } else {
-    //     alert("댓글 저장하지 못함!");
-    //   }
-    // });
+    const variable = {
+      content: RepleComment,
+      writer: user.userData._id,
+      postId: postId.videoId,
+      responseTo: comment._id,
+    };
+    console.log("에러찾자", variable);
+    axios.post("/api/comment/saveComment", variable).then((res) => {
+      console.log(res.data);
+      if (res.data.success) {
+        console.log(res.data.result);
+        setRepleComment("");
+        setOpenReply(false);
+        refreshFunction(res.data.result);
+      } else {
+        alert("댓글 저장하지 못함!");
+      }
+    });
   };
 
   const actions = [

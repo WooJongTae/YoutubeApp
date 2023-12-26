@@ -287,13 +287,14 @@ app.post("/api/getSubscriptionVideos", (req, res) => {
 
 app.post("/api/comment/saveComment", (req, res) => {
   const comment = new Comment(req.body);
-
+  console.log("흐흐", req.body);
   comment
     .save()
     .then((comment) => {
       Comment.find({ _id: comment._id })
         .populate("writer")
         .then((result) => {
+          console.log("흠", result);
           return res.status(200).json({ success: true, result });
         })
         .catch((err) => {

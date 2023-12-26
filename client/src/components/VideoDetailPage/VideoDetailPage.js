@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import SideVideo from "./SideVideo/SideVideo";
 import Subscribe from "./Subscribe/Subscribe";
 import Comment from "./Comment/Comment.js";
+import LikeDisLike from "./LikeDisLike.js";
 function VideoDetailPage() {
   const videoId = useParams();
   const variable = {
@@ -33,13 +34,17 @@ function VideoDetailPage() {
       .then((res) => {
         if (res.data.success) {
           setComments(res.data.comments);
-          console.log(res.data);
+          console.log(res.data.comments);
         }
       })
       .catch((err) => {
         console.log("코멘트 리플 가져오기 실패");
       });
   }, []);
+
+  const refreshFunction = (newComment) => {
+    setComments(Comments.concat(newComment));
+  };
   if (VideoDetail.writer) {
     return (
       <div>
@@ -53,6 +58,7 @@ function VideoDetailPage() {
               />
               <List.Item
                 actions={[
+                  <LikeDisLike />,
                   <Subscribe
                     // 비디오만든애
                     userTo={VideoDetail.writer._id}
@@ -70,7 +76,11 @@ function VideoDetailPage() {
                   description={VideoDetail.writer.description}
                 />
               </List.Item>
-              <Comment CommentLists={Comments} postId={videoId.videoId} />
+              <Comment
+                CommentLists={Comments}
+                postId={videoId.videoId}
+                refreshFunction={refreshFunction}
+              />
             </div>
           </Col>
           <Col lg={6} xs={24}>

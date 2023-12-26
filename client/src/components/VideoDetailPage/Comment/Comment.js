@@ -3,8 +3,10 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import SingleComement from "../SingleComement/SingleComement";
-function Comment({ CommentLists, postId }) {
+import ReplyComment from "./ReplyComment";
+function Comment({ CommentLists, postId, refreshFunction }) {
   const user = useSelector((state) => state.user.data);
+
   const [CommentValue, setCommentValue] = useState("");
 
   const videoId = useParams();
@@ -24,6 +26,8 @@ function Comment({ CommentLists, postId }) {
     axios.post("/api/comment/saveComment", variable).then((res) => {
       if (res.data.success) {
         console.log(res.data.result);
+        setCommentValue("");
+        refreshFunction(res.data.result);
       } else {
         alert("댓글 저장하지 못함!");
       }
@@ -35,9 +39,24 @@ function Comment({ CommentLists, postId }) {
       <p>댓글</p>
       <hr />
       {CommentLists &&
-        CommentLists.map((comment, index) => (
-          <SingleComement comment={comment} postId={videoId} />
-        ))}
+        CommentLists.map(
+          (comment, index) =>
+            !comment.responseTo && (
+              <div>
+                <SingleComement
+                  comment={comment}
+                  postId={videoId}
+                  refreshFunction={refreshFunction}
+                />
+                <ReplyComment
+                  CommentLists={CommentLists}
+                  parentCommentId={comment._id}
+                  videoId={videoId}
+                  refreshFunction={refreshFunction}
+                />
+              </div>
+            )
+        )}
       {/* <SingleComement postId={videoId.videoId} /> */}
       <form style={{ display: "flex" }} onSubmit={onSubmit}>
         <textarea
