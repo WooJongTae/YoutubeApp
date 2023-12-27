@@ -3,6 +3,7 @@ import { Avatar, Tooltip } from "antd";
 import { Comment } from "@ant-design/compatible";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import LikeDisLike from "../LikeDisLike";
 
 function SingleComement({ postId, comment, refreshFunction }) {
   console.log(comment.writer);
@@ -42,6 +43,10 @@ function SingleComement({ postId, comment, refreshFunction }) {
   };
 
   const actions = [
+    <LikeDisLike
+      userId={JSON.parse(localStorage.getItem("loginSuccess")).userId}
+      commentId={comment._id}
+    />,
     <span onClick={onClickReplyOpen} key="베이직 리플">
       리플 to
     </span>,

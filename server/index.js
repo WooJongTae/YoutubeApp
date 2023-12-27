@@ -22,6 +22,8 @@ const { auth } = require("./middleware/auth");
 const VideoData = require("./models/VideoData");
 const Subscriber = require("./models/Subscriber");
 const Comment = require("./models/Comment");
+const LikeData = require("./models/Like");
+const { DislikeData } = require("./models/Dislike");
 mongoose
   .connect(config.mongoURI)
   .then(() => console.log("몽고DB 접속"))
@@ -311,6 +313,128 @@ app.post("/api/comment/getComment", (req, res) => {
     .populate("writer")
     .then((comments) => {
       return res.status(200).json({ success: true, comments });
+    })
+    .catch((err) => {
+      return res.status(400).json({ success: false, err });
+    });
+});
+
+app.post("/api/like/getLikes", (req, res) => {
+  let variable = {};
+  if (req.body.videoId) {
+    variable = { videoId: req.body.videoId, userId: req.body.userId };
+  } else {
+    variable = { commentId: req.body.commentId, userId: req.body.userId };
+  }
+
+  LikeData.find(variable)
+    .then((likes) => {
+      return res.status(200).json({ success: true, likes });
+    })
+    .catch((err) => {
+      return res.status(400).json({ success: false, err });
+    });
+});
+
+app.post("/api/like/getDisLikes", (req, res) => {
+  let variable = {};
+  if (req.body.videoId) {
+    variable = { videoId: req.body.videoId, userId: req.body.userId };
+  } else {
+    variable = { commentId: req.body.commentId, userId: req.body.userId };
+  }
+
+  DislikeData.find(variable)
+    .then((disLikes) => {
+      return res.status(200).json({ success: true, disLikes });
+    })
+    .catch((err) => {
+      return res.status(400).json({ success: false, err });
+    });
+});
+
+app.post("/api/like/upLike", (req, res) => {
+  console.log("55555555", req.body);
+  let variable = {};
+
+  if (req.body.videoId) {
+    variable = { videoId: req.body.videoId, userId: req.body.userId };
+  } else {
+    variable = { commentId: req.body.commentId, userId: req.body.userId };
+  }
+
+  const like = new LikeData(variable);
+
+  like
+    .save()
+    .then(() => {
+      DislikeData.findOneAndDelete(variable)
+        .then((disLikeResult) => {
+          return res.status(200).json({ success: true });
+        })
+        .catch((err) => {
+          return res.status(400).json({ success: false, err });
+        });
+    })
+    .catch((err) => {
+      return res.status(400).json({ success: false, err });
+    });
+});
+
+app.post("/api/like/unLike", (req, res) => {
+  let variable = {};
+  if (req.body.videoId) {
+    variable = { videoId: req.body.videoId, userId: req.body.userId };
+  } else {
+    variable = { commentId: req.body.commentId, userId: req.body.userId };
+  }
+
+  LikeData.findOneAndDelete(variable)
+    .then((result) => {
+      return res.status(200).json({ success: true });
+    })
+    .catch((err) => {
+      return res.status(400).json({ success: false, err });
+    });
+});
+
+app.post("/api/like/unDisLike", (req, res) => {
+  let variable = {};
+  if (req.body.videoId) {
+    variable = { videoId: req.body.videoId, userId: req.body.userId };
+  } else {
+    variable = { commentId: req.body.commentId, userId: req.body.userId };
+  }
+
+  DislikeData.findOneAndDelete(variable)
+    .then((result) => {
+      return res.status(200).json({ success: true });
+    })
+    .catch((err) => {
+      return res.status(400).json({ success: false, err });
+    });
+});
+
+app.post("/api/like/upDisLike", (req, res) => {
+  let variable = {};
+
+  if (req.body.videoId) {
+    variable = { videoId: req.body.videoId, userId: req.body.userId };
+  } else {
+    variable = { commentId: req.body.commentId, userId: req.body.userId };
+  }
+
+  const DisLike = new DislikeData(variable);
+
+  DisLike.save()
+    .then(() => {
+      LikeData.findOneAndDelete(variable)
+        .then((disLikeResult) => {
+          return res.status(200).json({ success: true });
+        })
+        .catch((err) => {
+          return res.status(400).json({ success: false, err });
+        });
     })
     .catch((err) => {
       return res.status(400).json({ success: false, err });

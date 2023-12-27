@@ -58,7 +58,13 @@ function VideoDetailPage() {
               />
               <List.Item
                 actions={[
-                  <LikeDisLike />,
+                  <LikeDisLike
+                    video
+                    userId={
+                      JSON.parse(localStorage.getItem("loginSuccess")).userId
+                    }
+                    videoId={variable.videoId}
+                  />,
                   <Subscribe
                     // 비디오만든애
                     userTo={VideoDetail.writer._id}

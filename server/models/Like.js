@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const likeDataSchema = new mongoose.Schema(
   {
-    userTo: {
+    userId: {
       type: Schema.Types.ObjectId,
       ref: "UserData",
     },
